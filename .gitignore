@@ -1,0 +1,6 @@
+.env
+__pycache__/
+*.pyc
+*.session
+send_log.txt
+.venv/

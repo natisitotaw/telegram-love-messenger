@@ -1,0 +1,71 @@
+name: Daily Love Message
+
+on:
+  schedule:
+    # 05:00 UTC = 08:00 Africa/Addis_Ababa (EAT is UTC+3, no DST).
+    # GitHub Actions cron is always UTC, so the offset is applied here.
+    - cron: "0 5 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Run without actually sending a Telegram message"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+permissions:
+  contents: write   # needed to commit updated state.json back to the repo
+
+concurrency:
+  group: daily-love-message
+  cancel-in-progress: false
+
+jobs:
+  send-message:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: uv pip install --system -r requirements.txt
+
+      - name: Send today's message
+        env:
+          API_ID: ${{ secrets.API_ID }}
+          API_HASH: ${{ secrets.API_HASH }}
+          STRING_SESSION: ${{ secrets.STRING_SESSION }}
+          SISTER_USERNAME: ${{ secrets.SISTER_USERNAME }}
+          TIMEZONE: "Africa/Addis_Ababa"
+          SELECTION_MODE: "random"
+          SUNDAY_IMAGE: "true"
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+        run: uv run python app.py
+
+      - name: Commit updated state
+        if: always()
+        run: |
+          git config user.name "love-messenger-bot"
+          git config user.email "actions@github.com"
+          git add state.json send_log.txt || true
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: update state after daily send [skip ci]"
+            git push
+          else
+            echo "No state changes to commit."
+          fi
