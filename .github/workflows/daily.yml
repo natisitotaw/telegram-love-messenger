@@ -2,9 +2,9 @@ name: Daily Love Message
 
 on:
   schedule:
-    # 05:00 UTC = 08:00 Africa/Addis_Ababa (EAT is UTC+3, no DST).
-    # GitHub Actions cron is always UTC, so the offset is applied here.
-    - cron: "0 5 * * *"
+    # EAT is UTC+3, no DST, so the offsets below are fixed.
+    - cron: "0 3 * * *"   # 06:00 Africa/Addis_Ababa -> morning message
+    - cron: "0 19 * * *"  # 22:00 Africa/Addis_Ababa -> night message (16h later)
   workflow_dispatch:
     inputs:
       dry_run:
@@ -15,6 +15,14 @@ on:
         options:
           - "false"
           - "true"
+      slot:
+        description: "Which slot to send (only used for manual runs)"
+        required: false
+        default: "morning"
+        type: choice
+        options:
+          - "morning"
+          - "night"
 
 permissions:
   contents: write   # needed to commit updated state.json back to the repo
@@ -55,6 +63,7 @@ jobs:
           SELECTION_MODE: "random"
           SUNDAY_IMAGE: "true"
           DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+          SLOT: ${{ github.event.inputs.slot || (github.event.schedule == '0 19 * * *' && 'night' || 'morning') }}
         run: uv run python app.py
 
       - name: Commit updated state
