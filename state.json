@@ -1,7 +1,9 @@
 {
   "last_index": 25,
   "last_sent": "2026-08-17",
-  "last_slot": "morning",
-  "used_indices": [],
+  "last_slot": "night",
+  "used_indices": [
+    25
+  ],
   "cycle": 1
 }
