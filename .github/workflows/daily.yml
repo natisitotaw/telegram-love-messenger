@@ -60,7 +60,7 @@ jobs:
           STRING_SESSION: ${{ secrets.STRING_SESSION }}
           SISTER_USERNAME: ${{ secrets.SISTER_USERNAME }}
           TIMEZONE: "Africa/Addis_Ababa"
-          SELECTION_MODE: "random"
+          SELECTION_MODE: "sequential"
           SUNDAY_IMAGE: "true"
           DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
           SLOT: ${{ github.event.inputs.slot || (github.event.schedule == '0 19 * * *' && 'night' || 'morning') }}
