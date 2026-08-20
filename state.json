@@ -1,11 +1,12 @@
 {
   "last_index": 3,
   "last_sent": "2026-08-20",
-  "last_slot": "morning",
+  "last_slot": "night",
   "used_indices": [
     0,
     1,
-    2
+    2,
+    3
   ],
   "cycle": 1
 }
